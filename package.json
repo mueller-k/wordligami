@@ -1,5 +1,6 @@
 {
   "name": "wordligami",
+  "description": "Groupme Bot that will identify unique Wordle boards",
   "version": "0.1.0",
   "bin": {
     "wordligami": "bin/wordligami.js"
