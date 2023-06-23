@@ -42,6 +42,7 @@ jobs:
             
             - name: Run Linting Tools
               run: |
+                pip install flake8
                 flake8 --verbose .
             
             - name: Configure AWS Credentials
