@@ -1,4 +1,4 @@
-import pytest
+# import pytest
 
 
 from lambda_function import process_event

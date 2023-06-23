@@ -1,5 +1,5 @@
 import os
-from aws_cdk import Stack, SecretValue, aws_lambda, aws_secretsmanager, aws_lambda_python_alpha
+from aws_cdk import Stack, SecretValue, aws_lambda, aws_secretsmanager
 from constructs import Construct
 
 
