@@ -40,7 +40,7 @@ jobs:
                 for lambda in ./*/
                 do
                     cd ${lambda%*/}
-                    pip install -r requirements.txt --target .
+                    pip install -r requirements.txt --target . --platform manylinux2014_x86_64 --implementation cp --only-binary=:all: --upgrade
                     cd ..
                 done
               working-directory: ${{ github.workspace }}/src
