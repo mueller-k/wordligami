@@ -16,7 +16,7 @@ class MyStack(Stack):
         msg_proc_function = aws_lambda.Function(
             self,
             "msg-proc-function",
-            runtime=aws_lambda.Runtime.PYTHON_3_10,
+            runtime=aws_lambda.Runtime.PYTHON_3_9,
             handler="lambda_function.handler",
             code=aws_lambda.Code.from_asset(
                 os.path.join("src", "msg-processor"), exclude=["tests", "requirements*", "README.md"]
