@@ -21,7 +21,7 @@ class MyStack(Stack):
             code=aws_lambda.Code.from_asset(
                 os.path.join("src", "msg-processor"), exclude=["tests", "requirements*", "README.md"]
             ),
-            environment={"GROUPME_TOKEN_SECRET_NAME": groupme_secret_token.secret_name},
+            environment={"GROUPME_TOKEN_SECRET_ARN": groupme_secret_token.secret_arn},
         )
 
         groupme_secret_token.grant_read(msg_proc_function)
