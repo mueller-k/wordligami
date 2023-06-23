@@ -30,6 +30,11 @@ jobs:
                 pip install --upgrade pip
                 pip install -r requirements.txt
             
+            - name: Run Linting Tools
+              run: |
+                pip install flake8
+                flake8 --verbose .
+            
             - name: Package Lambdas
               run: |
                 for lambda in ./*/
@@ -39,11 +44,6 @@ jobs:
                     cd ..
                 done
               working-directory: ${{ github.workspace }}/src
-            
-            - name: Run Linting Tools
-              run: |
-                pip install flake8
-                flake8 --verbose .
             
             - name: Configure AWS Credentials
               uses: aws-actions/configure-aws-credentials@v2
