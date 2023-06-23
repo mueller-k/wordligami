@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import boto3
@@ -18,10 +19,11 @@ def handler(event, context) -> None:
 
 
 def process_event(event: dict) -> bool:
-    # write code here
-    groupme_token = get_secret(groupme_token_secret_arn)
+    groupme_token = get_groupme_token()
     groupme_client = Client.from_token(groupme_token)
-    groupme_client.groups.list()
+    groups = groupme_client.groups.list()
+    for group in groups.autopage():
+        logger.info(group)
     return True
 
 
@@ -29,9 +31,11 @@ def process_board(board: str) -> None:
     return None
 
 
-def get_secret(secret_id: str) -> str:
+def get_groupme_token() -> str:
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager")
+    get_secret_value_response = client.get_secret_value(SecretId=groupme_token_secret_arn)
 
-    get_secret_value_response = client.get_secret_value(SecretId=secret_id)
-    return get_secret_value_response["SecretString"]
+    groupme_token_secret = get_secret_value_response["SecretString"]
+    groupme_token_secret_object = json.loads(groupme_token_secret)
+    return groupme_token_secret_object.get("token", "")
