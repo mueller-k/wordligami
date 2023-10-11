@@ -57,4 +57,4 @@ jobs:
               run: pipenv run cdk synth 
             
             - name: Run CDK Deploy
-              run: pipenv run cdk deploy
+              run: pipenv run cdk deploy --require-approval never
