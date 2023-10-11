@@ -54,7 +54,7 @@ jobs:
                 aws-region: us-east-1
 
             - name: Run CDK Synth
-              run: cdk synth 
+              run: pipenv run cdk synth 
             
             - name: Run CDK Deploy
-              run: cdk deploy
+              run: pipenv run cdk deploy
