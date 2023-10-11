@@ -34,7 +34,9 @@ def process_board(board: str) -> None:
 def get_groupme_token() -> str:
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager")
-    get_secret_value_response = client.get_secret_value(SecretId=groupme_token_secret_arn)
+    get_secret_value_response = client.get_secret_value(
+        SecretId=groupme_token_secret_arn
+    )
 
     groupme_token_secret = get_secret_value_response["SecretString"]
     groupme_token_secret_object = json.loads(groupme_token_secret)
