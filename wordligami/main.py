@@ -1,5 +1,12 @@
 import os
-from aws_cdk import Stack, SecretValue, aws_lambda, aws_secretsmanager, aws_dynamodb
+from aws_cdk import (
+    Stack,
+    SecretValue,
+    aws_lambda,
+    aws_secretsmanager,
+    aws_dynamodb,
+    Duration,
+)
 from constructs import Construct
 
 
@@ -25,6 +32,7 @@ class MyStack(Stack):
                 exclude=["tests", "requirements*", "README.md"],
             ),
             environment={"GROUPME_TOKEN_SECRET_ARN": groupme_secret_token.secret_arn},
+            timeout=Duration.minutes(1),
         )
 
         groupme_secret_token.grant_read(msg_proc_function)
