@@ -1,6 +1,3 @@
-# import pytest
-
-
 from lambda_function import valid_message_text, convert_wordle_board_to_db_format
 
 
@@ -15,8 +12,6 @@ class TestMessageProcessor:
         wordle_board_raw = ["🟩⬛🟩⬛⬛", "🟩🟨🟩⬛⬛", "🟩⬛🟩⬛🟩", "🟩🟩🟩🟩🟩"]
         wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board_raw)
         assert wordle_board_db_format == "gwgwwgygwwgwgwgggggg"
-    
-    def test_process_message(self):
-        message = ""
-        assert 1
 
+    def test_process_message(self):
+        assert 1
