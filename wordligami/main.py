@@ -1,11 +1,12 @@
 import os
+
 from aws_cdk import (
-    Stack,
+    Duration,
     SecretValue,
+    Stack,
+    aws_dynamodb,
     aws_lambda,
     aws_secretsmanager,
-    aws_dynamodb,
-    Duration,
 )
 from constructs import Construct
 
