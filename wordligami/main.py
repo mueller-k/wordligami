@@ -1,6 +1,7 @@
 import os
 
 from aws_cdk import (
+    BundlingOptions,
     Duration,
     SecretValue,
     Stack,
@@ -38,6 +39,14 @@ class MyStack(Stack):
             handler="lambda_function.handler",
             code=aws_lambda.Code.from_asset(
                 os.path.join("src", "msg-processor"),
+                bundling=BundlingOptions(
+                    image=aws_lambda.Runtime.PYTHON_3_8.bundling_image,
+                    command=[
+                        "bash",
+                        "-c",
+                        "pip install -r requirements.txt -t /asset-output && cp -au . /asset-output",
+                    ],
+                ),
                 exclude=["tests", "requirements*", "README.md"],
             ),
             environment={"GROUPME_TOKEN_SECRET_ARN": groupme_secret_token.secret_arn},

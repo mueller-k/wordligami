@@ -1,5 +1,2 @@
 pytest
-pytest-metadata
-boto3
-requests
 -r requirements.txt
