@@ -1,2 +1,2 @@
-GroupyAPI==0.10.3
 emoji==2.8.0
+requests==2.31.0

@@ -49,7 +49,7 @@ def process_message(message) -> dict:
     words = text.split()
     wordle_index = words.index("Wordle")
     wordle_board_number = words[wordle_index + 1]
-    wordle_board_raw = words[wordle_index + 3:]
+    wordle_board_raw = words[wordle_index + 3 :]
     wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board_raw)
 
     user_id = message.user_id

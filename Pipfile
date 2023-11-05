@@ -4,10 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
 aws-cdk-lib = "*"
 constructs = "*"
-urllib3 = "*"
 
 [dev-packages]
 pytest = "*"
