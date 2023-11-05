@@ -47,12 +47,12 @@ def process_message(message) -> None:
     logger.info(f"Processing message: {message}")
     text = message.text
     if not valid_message_text(text):
-        logger.info(f"Message is not a valid wordle submission. Ignoring message.")
+        logger.info("Message is not a valid wordle submission. Ignoring message.")
 
     words = text.split()
     wordle_index = words.index("Wordle")
     wordle_board_number = words[wordle_index + 1]
-    wordle_board_raw = words[wordle_index + 3 :]
+    wordle_board_raw = words[wordle_index + 3:]
 
     store_board(wordle_board_raw, wordle_board_number, message.user_id)
     logger.info("Message processed.")
