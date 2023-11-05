@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_dynamodb,
     aws_lambda,
     aws_secretsmanager,
+    aws_iam,
 )
 from constructs import Construct
 
@@ -17,23 +18,30 @@ class MyStack(Stack):
 
         name_of_the_game = "wordligami"
 
+        test_identity = aws_iam.Role(
+            self, "test-role", assumed_by=aws_iam.AccountPrincipal(self.account)
+        )
+
         groupme_secret_token = aws_secretsmanager.Secret(
             self,
             "groupme-token-secret",
             secret_name=f"{name_of_the_game}-groupme-token",
             secret_object_value={"token": SecretValue.unsafe_plain_text("replace-me")},
         )
+
+        groupme_secret_token.grant_read(test_identity)
+
         msg_proc_function = aws_lambda.Function(
             self,
             "msg-proc-function",
-            runtime=aws_lambda.Runtime.PYTHON_3_9,
+            runtime=aws_lambda.Runtime.PYTHON_3_8,
             handler="lambda_function.handler",
             code=aws_lambda.Code.from_asset(
                 os.path.join("src", "msg-processor"),
                 exclude=["tests", "requirements*", "README.md"],
             ),
             environment={"GROUPME_TOKEN_SECRET_ARN": groupme_secret_token.secret_arn},
-            timeout=Duration.minutes(1),
+            timeout=Duration.minutes(5),
         )
 
         groupme_secret_token.grant_read(msg_proc_function)

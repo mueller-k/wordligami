@@ -1,4 +1,5 @@
-from lambda_function import valid_message_text, convert_wordle_board_to_db_format
+from lambda_function import (convert_wordle_board_to_db_format,
+                             valid_message_text)
 
 
 class TestMessageProcessor:

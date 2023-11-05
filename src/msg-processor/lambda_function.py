@@ -1,9 +1,9 @@
 import json
 import logging
 import os
+
 import boto3
 import emoji
-
 from groupy.client import Client
 
 logger = logging.getLogger()
