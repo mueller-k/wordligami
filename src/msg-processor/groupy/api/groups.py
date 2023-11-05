@@ -1,11 +1,6 @@
-from . import base
-from . import bots
-from . import messages
-from . import memberships
-from . import user
-from groupy import utils
-from groupy import pagers
-from groupy import exceptions
+from groupy import exceptions, pagers, utils
+
+from . import base, bots, memberships, messages, user
 
 
 class Groups(base.Manager):

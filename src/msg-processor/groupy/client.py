@@ -1,8 +1,4 @@
-from .api import bots
-from .api import groups
-from .api import chats
-from .api import user
-from .api import attachments
+from .api import attachments, bots, chats, groups, user
 from .session import Session
 
 

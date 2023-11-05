@@ -4,7 +4,6 @@ import requests
 
 from . import exceptions
 
-
 logger = logging.getLogger(__name__)
 
 

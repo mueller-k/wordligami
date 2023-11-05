@@ -10,6 +10,10 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 groupme_token_secret_arn = os.environ.get("GROUPME_TOKEN_SECRET_ARN")
+table_name = os.environ.get("TABLE_NAME")
+
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table(table_name)
 
 
 def handler(event, context) -> None:
@@ -28,7 +32,7 @@ def process_group(group_name: str) -> bool:
     ][0]
     logger.info("Processing the first 7 messages...")
     for message in wordle_group.messages.list()[:7]:
-        logger.info(process_message(message))
+        process_message(message)
 
     logger.info(wordle_group)
 
@@ -39,21 +43,33 @@ def unicode_escape(chars, data_dict):
     return chars.encode("unicode-escape").decode()
 
 
-def process_message(message) -> dict:
+def process_message(message) -> None:
+    logger.info(f"Processing message: {message}")
     text = message.text
     if not valid_message_text(text):
-        logger.info(
-            f"Message is not a valid wordle submission. Ignoring message: {text}"
-        )
+        logger.info(f"Message is not a valid wordle submission. Ignoring message.")
 
     words = text.split()
     wordle_index = words.index("Wordle")
     wordle_board_number = words[wordle_index + 1]
-    wordle_board_raw = words[wordle_index + 3:]
-    wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board_raw)
+    wordle_board_raw = words[wordle_index + 3 :]
 
-    user_id = message.user_id
-    return {"pk": wordle_board_db_format, "sk": f"{user_id}#{wordle_board_number}"}
+    store_board(wordle_board_raw, wordle_board_number, message.user_id)
+    logger.info("Message processed.")
+    return
+
+
+def store_board(wordle_board: list, wordle_board_number: str, user_id: str) -> None:
+    wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
+
+    table.put_item(
+        Item={
+            "board": wordle_board_db_format,
+            "userBoardNumber": f"{user_id}#{wordle_board_number}",
+        }
+    )
+
+    return
 
 
 def convert_wordle_board_to_db_format(wordle_board_raw: list) -> str:

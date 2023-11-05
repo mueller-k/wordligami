@@ -1,5 +1,6 @@
-from . import base
 from groupy import utils
+
+from . import base
 
 
 class Bots(base.Manager):

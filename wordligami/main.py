@@ -50,7 +50,10 @@ class MyStack(Stack):
                 exclude=["tests", "requirements*", "README.md"],
             ),
             memory_size=500,
-            environment={"GROUPME_TOKEN_SECRET_ARN": groupme_secret_token.secret_arn},
+            environment={
+                "GROUPME_TOKEN_SECRET_ARN": groupme_secret_token.secret_arn,
+                "TABLE_NAME": name_of_the_game,
+            },
             timeout=Duration.minutes(5),
         )
 

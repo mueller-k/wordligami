@@ -1,9 +1,9 @@
 import time
 
+from groupy import pagers, utils
+
 from . import base
 from .attachments import Attachment
-from groupy import utils
-from groupy import pagers
 
 
 class Messages(base.Manager):

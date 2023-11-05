@@ -1,6 +1,6 @@
-import urllib
 import operator
-from datetime import datetime, timezone, timedelta
+import urllib
+from datetime import datetime, timedelta, timezone
 
 from groupy import exceptions
 

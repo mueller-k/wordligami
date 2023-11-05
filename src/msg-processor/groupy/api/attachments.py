@@ -1,5 +1,6 @@
-from . import base
 from groupy import utils
+
+from . import base
 
 
 # use a class registry to enable factory creation of attachment objects

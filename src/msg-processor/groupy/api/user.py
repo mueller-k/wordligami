@@ -1,6 +1,6 @@
-from . import base
-from . import blocks
 from groupy import utils
+
+from . import base, blocks
 
 
 class User(base.Manager):

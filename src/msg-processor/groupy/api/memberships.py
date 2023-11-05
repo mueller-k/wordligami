@@ -1,12 +1,10 @@
-from collections import namedtuple
 import time
 import uuid
+from collections import namedtuple
 
-from . import base
-from . import messages
-from . import user
-from groupy import utils
-from groupy import exceptions
+from groupy import exceptions, utils
+
+from . import base, messages, user
 
 
 class Memberships(base.Manager):

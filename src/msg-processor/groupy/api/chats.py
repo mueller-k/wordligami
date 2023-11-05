@@ -1,7 +1,6 @@
-from . import base
-from . import messages
-from groupy import pagers
-from groupy import utils
+from groupy import pagers, utils
+
+from . import base, messages
 
 
 class Chats(base.Manager):
