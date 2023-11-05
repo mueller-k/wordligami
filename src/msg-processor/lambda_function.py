@@ -26,8 +26,8 @@ def process_group(group_name: str) -> bool:
     wordle_group = [
         group for group in groupme_client.groups.list_all() if group.name == group_name
     ][0]
-    logger.info("Processing the first 5 messages...")
-    for message in wordle_group.messages.list()[:5]:
+    logger.info("Processing the first 7 messages...")
+    for message in wordle_group.messages.list()[:7]:
         logger.info(process_message(message))
 
     logger.info(wordle_group)
