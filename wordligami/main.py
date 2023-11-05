@@ -35,12 +35,12 @@ class MyStack(Stack):
         msg_proc_function = aws_lambda.Function(
             self,
             "msg-proc-function",
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
+            runtime=aws_lambda.Runtime.PYTHON_3_10,
             handler="lambda_function.handler",
             code=aws_lambda.Code.from_asset(
                 os.path.join("src", "msg-processor"),
                 bundling=BundlingOptions(
-                    image=aws_lambda.Runtime.PYTHON_3_8.bundling_image,
+                    image=aws_lambda.Runtime.PYTHON_3_10.bundling_image,
                     command=[
                         "bash",
                         "-c",
