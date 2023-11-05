@@ -79,6 +79,7 @@ def convert_wordle_board_to_db_format(wordle_board_raw: list) -> str:
         row_db_format = (
             row_decoded.replace("\\U0001f7e9", "g")
             .replace("\\u2b1b", "w")
+            .replace("\\u2b1c", "w")
             .replace("\\U0001f7e8", "y")
         )
         wordle_board_db_format = wordle_board_db_format + row_db_format
