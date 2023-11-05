@@ -15,14 +15,14 @@ class Messages(base.Manager):
     """
 
     def __init__(self, session, group_id):
-        path = 'groups/{}/messages'.format(group_id)
+        path = "groups/{}/messages".format(group_id)
         super().__init__(session, path=path)
 
     def _raw_list(self, **params):
         response = self.session.get(self.url, params=params)
         if response.status_code == 304:
             return []
-        messages = response.data['messages']
+        messages = response.data["messages"]
         return [Message(self, **message) for message in messages]
 
     def list(self, before_id=None, since_id=None, after_id=None, limit=20):
@@ -38,9 +38,14 @@ class Messages(base.Manager):
         :return: group messages
         :rtype: :class:`~groupy.pagers.MessageList`
         """
-        return pagers.MessageList(self, self._raw_list, before_id=before_id,
-                                  after_id=after_id, since_id=since_id,
-                                  limit=limit)
+        return pagers.MessageList(
+            self,
+            self._raw_list,
+            before_id=before_id,
+            after_id=after_id,
+            since_id=since_id,
+            limit=limit,
+        )
 
     def list_before(self, message_id, limit=None):
         """Return a page of group messages created before a message.
@@ -120,18 +125,18 @@ class Messages(base.Manager):
         :rtype: :class:`~groupy.api.messages.Message`
         """
         message = {
-            'source_guid': source_guid or str(time.time()),
+            "source_guid": source_guid or str(time.time()),
         }
 
         if text is not None:
-            message['text'] = text
+            message["text"] = text
 
         if attachments is not None:
-            message['attachments'] = [a.to_json() for a in attachments]
+            message["attachments"] = [a.to_json() for a in attachments]
 
-        payload = {'message': message}
+        payload = {"message": message}
         response = self.session.post(self.url, json=payload)
-        message = response.data['message']
+        message = response.data["message"]
         return Message(self, **message)
 
 
@@ -143,15 +148,15 @@ class DirectMessages(base.Manager):
     """
 
     def __init__(self, session, other_user_id):
-        super().__init__(session, 'direct_messages')
+        super().__init__(session, "direct_messages")
         self.other_user_id = other_user_id
 
     def _raw_list(self, **params):
-        params['other_user_id'] = self.other_user_id
+        params["other_user_id"] = self.other_user_id
         response = self.session.get(self.url, params=params)
         if response.status_code == 304:
             return []
-        messages = response.data['direct_messages']
+        messages = response.data["direct_messages"]
         return [DirectMessage(self, **message) for message in messages]
 
     def list(self, before_id=None, since_id=None, **kwargs):
@@ -165,8 +170,9 @@ class DirectMessages(base.Manager):
         :return: direct messages
         :rtype: :class:`~groupy.pagers.MessageList`
         """
-        return pagers.MessageList(self, self._raw_list, before_id=before_id,
-                                  since_id=since_id, **kwargs)
+        return pagers.MessageList(
+            self, self._raw_list, before_id=before_id, since_id=since_id, **kwargs
+        )
 
     def list_before(self, message_id, **kwargs):
         """Return a page of direct messages created before a message.
@@ -234,19 +240,19 @@ class DirectMessages(base.Manager):
         :rtype: :class:`~groupy.api.messages.DirectMessage`
         """
         message = {
-            'source_guid': source_guid or str(time.time()),
-            'recipient_id': self.other_user_id,
+            "source_guid": source_guid or str(time.time()),
+            "recipient_id": self.other_user_id,
         }
 
         if text is not None:
-            message['text'] = text
+            message["text"] = text
 
         if attachments is not None:
-            message['attachments'] = [a.to_json() for a in attachments]
+            message["attachments"] = [a.to_json() for a in attachments]
 
-        payload = {'direct_message': message}
+        payload = {"direct_message": message}
         response = self.session.post(self.url, json=payload)
-        message = response.data['direct_message']
+        message = response.data["direct_message"]
         return DirectMessage(self, **message)
 
 
@@ -264,19 +270,21 @@ class GenericMessage(base.ManagedResource):
     def __init__(self, manager, conversation_id, **data):
         super().__init__(manager, **data)
         self.conversation_id = conversation_id
-        self.created_at = utils.get_datetime(self.data['created_at'])
-        attachments = self.data.get('attachments') or []
+        self.created_at = utils.get_datetime(self.data["created_at"])
+        attachments = self.data.get("attachments") or []
         self.attachments = Attachment.from_bulk_data(attachments)
-        self._likes = Likes(self.manager.session, self.conversation_id,
-                            message_id=self.id)
+        self._likes = Likes(
+            self.manager.session, self.conversation_id, message_id=self.id
+        )
 
     def __repr__(self):
         klass = self.__class__.__name__
         text = self.text
         if text and len(text) > self.preview_length:
-            text = text[:self.preview_length - 3] + '...'
-        return ('<{}(name={!r}, text={!r}, attachments={})>'
-                .format(klass, self.name, text, len(self.attachments)))
+            text = text[: self.preview_length - 3] + "..."
+        return "<{}(name={!r}, text={!r}, attachments={})>".format(
+            klass, self.name, text, len(self.attachments)
+        )
 
     def __eq__(self, other):
         return self.id == other.id
@@ -294,7 +302,7 @@ class Message(GenericMessage):
     """A group message."""
 
     def __init__(self, manager, **data):
-        conversation_id = data['group_id']
+        conversation_id = data["group_id"]
         super().__init__(manager, conversation_id, **data)
 
 
@@ -303,17 +311,17 @@ class DirectMessage(GenericMessage):
 
     # manager could be from a chat or from a group... is that a problem?
     def __init__(self, manager, **data):
-        data['conversation_id'] = self.__class__.get_conversation_id(data)
+        data["conversation_id"] = self.__class__.get_conversation_id(data)
         super().__init__(manager, **data)
 
     @staticmethod
     def get_conversation_id(data):
         # some endpoints return direct messages with a conversation id. if not,
         # we have to construct it
-        conversation_id = data.get('conversation_id')
+        conversation_id = data.get("conversation_id")
         if not conversation_id:
-            participant_ids = data['recipient_id'], data['sender_id']
-            conversation_id = '+'.join(sorted(participant_ids))
+            participant_ids = data["recipient_id"], data["sender_id"]
+            conversation_id = "+".join(sorted(participant_ids))
         return conversation_id
 
 
@@ -321,13 +329,13 @@ class Leaderboard(base.Manager):
     """Manager for messages on the leaderboard."""
 
     def __init__(self, session, group_id):
-        path = 'groups/{}/likes'.format(group_id)
+        path = "groups/{}/likes".format(group_id)
         super().__init__(session, path=path)
 
     def _get_messages(self, path=None, **params):
         url = utils.urljoin(self.url, path)
         response = self.session.get(url, params=params)
-        messages = response.data['messages']
+        messages = response.data["messages"]
         return [Message(self, **message) for message in messages]
 
     def list(self, period):
@@ -345,7 +353,7 @@ class Leaderboard(base.Manager):
         :return: the messages
         :rtype: :class:`list`
         """
-        return self._get_messages(period='day')
+        return self._get_messages(period="day")
 
     def list_week(self):
         """List most liked messages for the last week.
@@ -353,7 +361,7 @@ class Leaderboard(base.Manager):
         :return: the messages
         :rtype: :class:`list`
         """
-        return self._get_messages(period='week')
+        return self._get_messages(period="week")
 
     def list_month(self):
         """List most liked messages for the last month.
@@ -361,7 +369,7 @@ class Leaderboard(base.Manager):
         :return: the messages
         :rtype: :class:`list`
         """
-        return self._get_messages(period='month')
+        return self._get_messages(period="month")
 
     def list_mine(self):
         """List messages you liked.
@@ -369,7 +377,7 @@ class Leaderboard(base.Manager):
         :return: the messages
         :rtype: :class:`list`
         """
-        return self._get_messages(path='mine')
+        return self._get_messages(path="mine")
 
     def list_for_me(self):
         """List your top liked messages.
@@ -377,7 +385,7 @@ class Leaderboard(base.Manager):
         :return: the messages
         :rtype: :class:`list`
         """
-        return self._get_messages(path='for_me')
+        return self._get_messages(path="for_me")
 
 
 class Likes(base.Manager):
@@ -392,18 +400,18 @@ class Likes(base.Manager):
     """
 
     def __init__(self, session, conversation_id, message_id):
-        path = 'messages/{}/{}'.format(conversation_id, message_id)
+        path = "messages/{}/{}".format(conversation_id, message_id)
         super().__init__(session, path=path)
 
     def like(self):
         """Like the message."""
-        url = utils.urljoin(self.url, 'like')
+        url = utils.urljoin(self.url, "like")
         response = self.session.post(url)
         return response.ok
 
     def unlike(self):
         """Unlike the message."""
-        url = utils.urljoin(self.url, 'unlike')
+        url = utils.urljoin(self.url, "unlike")
         response = self.session.post(url)
         return response.ok
 
@@ -418,14 +426,14 @@ class Gallery(base.Manager):
     """
 
     def __init__(self, session, group_id):
-        path = 'conversations/{}/gallery'.format(group_id)
+        path = "conversations/{}/gallery".format(group_id)
         super().__init__(session, path=path)
 
     def _raw_list(self, **params):
         response = self.session.get(self.url, params=params)
         if response.status_code == 304:
             return []
-        messages = response.data['messages']
+        messages = response.data["messages"]
         return [Message(self, **message) for message in messages]
 
     def _convert_to_rfc3339(self, when=None):
@@ -437,8 +445,9 @@ class Gallery(base.Manager):
         before = self._convert_to_rfc3339(before)
         since = self._convert_to_rfc3339(since)
         after = self._convert_to_rfc3339(after)
-        return pagers.GalleryList(self, self._raw_list, before=before,
-                                  since=since, after=after, limit=limit)
+        return pagers.GalleryList(
+            self, self._raw_list, before=before, since=since, after=after, limit=limit
+        )
 
     def list_before(self, when, limit=100):
         return self.list(before=when, limit=limit)
@@ -457,4 +466,3 @@ class Gallery(base.Manager):
 
     def list_all_after(self, when, limit=100):
         return self.list_after(when=when, limit=limit).autopage()
-
