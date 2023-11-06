@@ -54,7 +54,7 @@ class MyStack(Stack):
                 "GROUPME_TOKEN_SECRET_ARN": groupme_secret_token.secret_arn,
                 "TABLE_NAME": name_of_the_game,
             },
-            timeout=Duration.minutes(5),
+            timeout=Duration.minutes(15),
         )
 
         groupme_secret_token.grant_read(msg_proc_function)
