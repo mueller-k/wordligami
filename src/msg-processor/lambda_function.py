@@ -1,9 +1,11 @@
 import json
 import logging
 import os
+from typing import Tuple
 
 import boto3
 import emoji
+
 from groupy.client import Client
 
 logger = logging.getLogger()
@@ -14,6 +16,9 @@ table_name = os.environ.get("TABLE_NAME")
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(table_name)
+
+green_square_emoji = "\\U0001f7e9"
+final_row = green_square_emoji * 5
 
 
 def handler(event, context) -> None:
@@ -43,20 +48,38 @@ def unicode_escape(chars, data_dict):
     return chars.encode("unicode-escape").decode()
 
 
+def decode_message(message_text: str) -> str:
+    return emoji.replace_emoji(message_text, replace=unicode_escape)
+
+
 def process_message(message) -> None:
     logger.info(f"Processing message: {message}")
-    text = message.text
-    if not valid_message_text(text):
+
+    decoded_message_text = decode_message(message.text)
+
+    if not message_contains_wordle_submission(decoded_message_text):
         logger.info("Message is not a valid wordle submission. Ignoring message.")
 
-    words = text.split()
-    wordle_index = words.index("Wordle")
-    wordle_board_number = words[wordle_index + 1]
-    wordle_board_raw = words[wordle_index + 3:]  # fmt: skip
+    wordle_board, wordle_board_number = parse_message(decoded_message_text)
 
-    store_board(wordle_board_raw, wordle_board_number, message.user_id)
+    store_board(wordle_board, wordle_board_number, message.user_id)
     logger.info("Message processed.")
     return
+
+
+def parse_message(message) -> Tuple[list, str]:
+    """Parse validated message for Wordle submission"""
+    end_of_board_index = message.find(final_row) + len(final_row)
+
+    words = message[:end_of_board_index].split()
+
+    logger.info(f"Words: {words}")
+
+    wordle_index = words.index("Wordle")
+    wordle_board_number = words[wordle_index + 1]
+    wordle_board = words[wordle_index + 3:]  # fmt: skip
+
+    return wordle_board, wordle_board_number
 
 
 def store_board(wordle_board: list, wordle_board_number: str, user_id: str) -> None:
@@ -72,12 +95,11 @@ def store_board(wordle_board: list, wordle_board_number: str, user_id: str) -> N
     return
 
 
-def convert_wordle_board_to_db_format(wordle_board_raw: list) -> str:
+def convert_wordle_board_to_db_format(wordle_board: list) -> str:
     wordle_board_db_format = ""
-    for row in wordle_board_raw:
-        row_decoded = emoji.replace_emoji(row, replace=unicode_escape)
+    for row in wordle_board:
         row_db_format = (
-            row_decoded.replace("\\U0001f7e9", "g")
+            row.replace("\\U0001f7e9", "g")
             .replace("\\u2b1b", "w")
             .replace("\\u2b1c", "w")
             .replace("\\U0001f7e8", "y")
@@ -86,7 +108,7 @@ def convert_wordle_board_to_db_format(wordle_board_raw: list) -> str:
     return wordle_board_db_format
 
 
-def valid_message_text(message_text: str) -> bool:
+def message_contains_wordle_submission(message_text: str) -> bool:
     """Validate if message text contains a Wordle result."""
     words = message_text.split()
 
@@ -95,7 +117,11 @@ def valid_message_text(message_text: str) -> bool:
     except ValueError:
         return False
 
-    return "Wordle" in words and str(words[wordle_index + 1]).isnumeric()
+    return (
+        "Wordle" in words
+        and str(words[wordle_index + 1]).isnumeric()
+        and final_row in message_text
+    )
 
 
 def get_groupme_token() -> str:
