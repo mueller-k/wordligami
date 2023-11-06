@@ -41,7 +41,7 @@ def process_group(group_name: str) -> bool:
 
     logger.info(wordle_group)
 
-    logger.info(f"Group processed.")
+    logger.info("Group processed.")
     return True
 
 
