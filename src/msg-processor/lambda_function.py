@@ -109,6 +109,9 @@ def convert_wordle_board_to_db_format(wordle_board: list) -> str:
 
 def message_contains_wordle_submission(message_text: str) -> bool:
     """Validate if message text contains a Wordle result."""
+    if not message_text:
+        return False
+
     words = message_text.split()
 
     try:
