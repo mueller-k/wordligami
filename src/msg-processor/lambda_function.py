@@ -136,9 +136,14 @@ def message_contains_wordle_submission(message_text: str) -> bool:
     except ValueError:
         return False
 
+    try:
+        wordle_board_number = words[wordle_index + 1]
+    except IndexError:
+        return False
+
     return (
         "Wordle" in words
-        and str(words[wordle_index + 1]).isnumeric()
+        and str(wordle_board_number).isnumeric()
         and final_row in message_text
     )
 

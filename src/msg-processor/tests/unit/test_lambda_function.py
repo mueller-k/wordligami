@@ -1,5 +1,9 @@
-from lambda_function import (convert_wordle_board_to_db_format, decode_message,
-                             message_contains_wordle_submission, parse_message)
+from lambda_function import (
+    convert_wordle_board_to_db_format,
+    decode_message,
+    message_contains_wordle_submission,
+    parse_message,
+)
 
 
 class TestMessageProcessor:
@@ -8,8 +12,10 @@ class TestMessageProcessor:
         invalid_message = decode_message(
             "Werdle 843 4/6*\n\n🟩⬛🟩⬛⬛\n🟩🟨🟩⬛⬛\n🟩⬛🟩⬛🟩\n🟩🟩🟩🟩🟩"
         )
+        invalid_message_2 = "2 Kyle 2 Wordle"
         assert message_contains_wordle_submission(valid_message)
         assert not message_contains_wordle_submission(invalid_message)
+        assert not message_contains_wordle_submission(invalid_message_2)
 
     def test_convert_wordle_board_to_db_format(self):
         wordle_board = [
