@@ -40,7 +40,7 @@ def process_group(group_name: str) -> None:
     wordle_group = [
         group for group in groupme_client.groups.list_all() if group.name == group_name
     ][0]
-    for message in wordle_group.messages.list():
+    for message in wordle_group.messages.list_all():
         process_message(message)
 
     logger.info(wordle_group)
