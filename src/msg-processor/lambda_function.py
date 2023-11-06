@@ -30,17 +30,18 @@ def handler(event, context) -> None:
 
 
 def process_group(group_name: str) -> bool:
+    logger.info(f"Processing group {group_name}...")
     groupme_token = get_groupme_token()
     groupme_client = Client.from_token(groupme_token)
     wordle_group = [
         group for group in groupme_client.groups.list_all() if group.name == group_name
     ][0]
-    logger.info("Processing the first 7 messages...")
-    for message in wordle_group.messages.list()[:7]:
+    for message in wordle_group.messages.list():
         process_message(message)
 
     logger.info(wordle_group)
 
+    logger.info(f"Group processed.")
     return True
 
 
@@ -53,7 +54,7 @@ def decode_message(message_text: str) -> str:
 
 
 def process_message(message) -> None:
-    logger.info(f"Processing message: {message}")
+    logger.info(f"Processing message: {message}...")
 
     decoded_message_text = decode_message(message.text)
 
@@ -72,8 +73,6 @@ def parse_message(message) -> Tuple[list, str]:
     end_of_board_index = message.find(final_row) + len(final_row)
 
     words = message[:end_of_board_index].split()
-
-    logger.info(f"Words: {words}")
 
     wordle_index = words.index("Wordle")
     wordle_board_number = words[wordle_index + 1]
