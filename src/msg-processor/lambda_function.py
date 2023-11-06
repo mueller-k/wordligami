@@ -29,7 +29,11 @@ def handler(event, context) -> None:
     return None
 
 
-def process_group(group_name: str) -> bool:
+def process_event() -> None:
+    return
+
+
+def process_group(group_name: str) -> None:
     logger.info(f"Processing group {group_name}...")
     groupme_token = get_groupme_token()
     groupme_client = Client.from_token(groupme_token)
@@ -42,10 +46,10 @@ def process_group(group_name: str) -> bool:
     logger.info(wordle_group)
 
     logger.info("Group processed.")
-    return True
+    return
 
 
-def unicode_escape(chars, data_dict):
+def unicode_escape(chars, data_dict) -> str:
     return chars.encode("unicode-escape").decode()
 
 
@@ -55,6 +59,9 @@ def decode_message(message_text: str) -> str:
 
 def process_message(message) -> None:
     logger.info(f"Processing message: {message}...")
+
+    if not message.text:
+        logger.info("Message is empty. Ignoring message.")
 
     decoded_message_text = decode_message(message.text)
 
@@ -82,11 +89,9 @@ def parse_message(message) -> Tuple[list, str]:
 
 
 def store_board(wordle_board: list, wordle_board_number: str, user_id: str) -> None:
-    wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
-
     table.put_item(
         Item={
-            "board": wordle_board_db_format,
+            "board": convert_wordle_board_to_db_format(wordle_board),
             "userBoardNumber": f"{user_id}#{wordle_board_number}",
         }
     )
