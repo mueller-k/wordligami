@@ -62,11 +62,13 @@ def process_message(message) -> None:
 
     if not message.text:
         logger.info("Message is empty. Ignoring message.")
+        return
 
     decoded_message_text = decode_message(message.text)
 
     if not message_contains_wordle_submission(decoded_message_text):
         logger.info("Message is not a valid wordle submission. Ignoring message.")
+        return
 
     wordle_board, wordle_board_number = parse_message(decoded_message_text)
 
@@ -89,14 +91,24 @@ def parse_message(message) -> Tuple[list, str]:
 
 
 def store_board(wordle_board: list, wordle_board_number: str, user_id: str) -> None:
+    wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
+
     table.put_item(
         Item={
-            "board": convert_wordle_board_to_db_format(wordle_board),
+            "board": wordle_board_db_format,
             "userBoardNumber": f"{user_id}#{wordle_board_number}",
         }
     )
 
     return
+
+
+def get_board(wordle_board: list) -> list | None:
+    wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
+
+    item = table.get_item(Key={"board": wordle_board_db_format})
+
+    return item
 
 
 def convert_wordle_board_to_db_format(wordle_board: list) -> str:
