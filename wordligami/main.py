@@ -12,6 +12,7 @@ from aws_cdk import (
     aws_iam,
     aws_lambda,
     aws_route53,
+    aws_route53_targets,
     aws_secretsmanager,
 )
 from constructs import Construct
@@ -23,22 +24,29 @@ class DnsStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        hosted_zone = aws_route53.HostedZone(
+        self.hosted_zone = aws_route53.HostedZone(
             self, "hosted-zone", zone_name=f"{NAME_OF_THE_GAME}.com"
         )
 
-        aws_certificatemanager.Certificate(
+        self.certificate = aws_certificatemanager.Certificate(
             self,
             "cert",
             domain_name=f"*.{NAME_OF_THE_GAME}.com",
             validation=aws_certificatemanager.CertificateValidation.from_dns(
-                hosted_zone
+                self.hosted_zone
             ),
         )
 
 
-class MyStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+class AppStack(Stack):
+    def __init__(
+        self,
+        scope: Construct,
+        construct_id: str,
+        hosted_zone: aws_route53.HostedZone,
+        certificate: aws_certificatemanager.Certificate,
+        **kwargs,
+    ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         NAME_OF_THE_GAME = "wordligami"
@@ -56,8 +64,33 @@ class MyStack(Stack):
 
         groupme_secret_token.grant_read(test_identity)
 
+        api_domain_name = aws_apigatewayv2_alpha.DomainName(
+            self,
+            "api-domain-name",
+            domain_name=f"api.{NAME_OF_THE_GAME}.com",
+            certificate=certificate,
+        )
+
         api = aws_apigatewayv2_alpha.HttpApi(
-            self, "http-api", api_name=NAME_OF_THE_GAME
+            self,
+            "http-api",
+            api_name=NAME_OF_THE_GAME,
+            default_domain_mapping=aws_apigatewayv2_alpha.DomainMappingOptions(
+                domain_name=api_domain_name, mapping_key="bot"
+            ),
+        )
+
+        aws_route53.ARecord(
+            self,
+            "api-a-record",
+            record_name="api",
+            zone=hosted_zone,
+            target=aws_route53.RecordTarget.from_alias(
+                aws_route53_targets.ApiGatewayv2DomainProperties(
+                    api_domain_name.regional_domain_name,
+                    api_domain_name.regional_hosted_zone_id,
+                )
+            ),
         )
 
         msg_proc_function = aws_lambda.Function(

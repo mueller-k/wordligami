@@ -2,7 +2,7 @@ import os
 
 from aws_cdk import App, Environment
 
-from wordligami.main import DnsStack, MyStack
+from wordligami.main import DnsStack, AppStack
 
 # for development, use account/region from cdk cli
 dev_env = Environment(
@@ -10,8 +10,11 @@ dev_env = Environment(
 )
 
 app = App()
-MyStack(app, "wordligami-dev", env=dev_env)
-DnsStack(app, "wordligami-dns-dev", env=dev_env)
+dns_stack = DnsStack(app, "wordligami-dns-dev", env=dev_env)
+AppStack(
+    app, "wordligami-dev", dns_stack.hosted_zone, dns_stack.certificate, env=dev_env
+)
+
 # MyStack(app, "wordligami-prod", env=prod_env)
 
 app.synth()
