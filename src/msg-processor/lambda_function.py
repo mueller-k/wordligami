@@ -21,15 +21,15 @@ green_square_emoji = "\\U0001f7e9"
 final_row = green_square_emoji * 5
 
 
-def handler(event, context) -> None:
+def handler(event, context) -> dict:
     logger.info("Processing event...")
-    # process_event(event)
-    process_group("Banal")
+    process_event(event)
+    # process_group("Banal")
     logger.info("Event processed.")
-    return None
+    return {"body": "success", "statusCode": 200}
 
 
-def process_event() -> None:
+def process_event(event) -> None:
     return
 
 
@@ -40,7 +40,7 @@ def process_group(group_name: str) -> None:
     wordle_group = [
         group for group in groupme_client.groups.list_all() if group.name == group_name
     ][0]
-    for message in wordle_group.messages.list_all():
+    for message in wordle_group.messages.list_all(limit=100):
         process_message(message)
 
     logger.info(wordle_group)

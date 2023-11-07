@@ -9,7 +9,10 @@ from aws_cdk import (
     aws_lambda,
     aws_secretsmanager,
     aws_iam,
+    aws_apigatewayv2_alpha,
+    aws_apigatewayv2_integrations_alpha,
 )
+
 from constructs import Construct
 
 
@@ -31,6 +34,11 @@ class MyStack(Stack):
         )
 
         groupme_secret_token.grant_read(test_identity)
+
+        api = aws_apigatewayv2_alpha.HttpApi(
+            self,
+            "http-api",
+        )
 
         msg_proc_function = aws_lambda.Function(
             self,
@@ -58,6 +66,14 @@ class MyStack(Stack):
         )
 
         groupme_secret_token.grant_read(msg_proc_function)
+
+        api.add_routes(
+            path="/message",
+            methods=[aws_apigatewayv2_alpha.HttpMethod.POST],
+            integration=aws_apigatewayv2_integrations_alpha.HttpLambdaIntegration(
+                "post-message-integration", msg_proc_function
+            ),
+        )
 
         board_table = aws_dynamodb.Table(
             self,

@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 aws-cdk-lib = "*"
 constructs = "*"
+"aws-cdk.aws-apigatewayv2-alpha" = "*"
+"aws-cdk.aws-apigatewayv2-integrations-alpha" = "*"
 
 [dev-packages]
 pytest = "*"
