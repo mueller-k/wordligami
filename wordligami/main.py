@@ -1,9 +1,19 @@
 import os
 
-from aws_cdk import (BundlingOptions, Duration, SecretValue, Stack,
-                     aws_apigatewayv2_alpha,
-                     aws_apigatewayv2_integrations_alpha, aws_dynamodb,
-                     aws_iam, aws_lambda, aws_route53, aws_secretsmanager)
+from aws_cdk import (
+    BundlingOptions,
+    Duration,
+    SecretValue,
+    Stack,
+    aws_apigatewayv2_alpha,
+    aws_apigatewayv2_integrations_alpha,
+    aws_certificatemanager,
+    aws_dynamodb,
+    aws_iam,
+    aws_lambda,
+    aws_route53,
+    aws_secretsmanager,
+)
 from constructs import Construct
 
 NAME_OF_THE_GAME = "wordligami"
@@ -13,7 +23,18 @@ class DnsStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        aws_route53.HostedZone(self, "hosted-zone", zone_name=f"{NAME_OF_THE_GAME}.com")
+        hosted_zone = aws_route53.HostedZone(
+            self, "hosted-zone", zone_name=f"{NAME_OF_THE_GAME}.com"
+        )
+
+        aws_certificatemanager.Certificate(
+            self,
+            "cert",
+            domain_name=f"*.{NAME_OF_THE_GAME}.com",
+            validation=aws_certificatemanager.CertificateValidation.from_dns(
+                hosted_zone
+            ),
+        )
 
 
 class MyStack(Stack):
