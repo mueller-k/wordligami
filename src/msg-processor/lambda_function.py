@@ -52,7 +52,9 @@ def process_message(message: dict) -> dict:
     decoded_message_text = decode_message(message_text)
 
     if not message_contains_wordle_submission(decoded_message_text):
-        logger.info("Message is not a valid wordle submission. Ignoring message.")
+        logger.info(
+            "Message is not a valid, winning Wordle submission. Ignoring message."
+        )
         return {}
 
     wordle_board, wordle_board_number = parse_message(decoded_message_text)
@@ -172,7 +174,9 @@ def backload_message(message) -> None:
     decoded_message_text = decode_message(message.text)
 
     if not message_contains_wordle_submission(decoded_message_text):
-        logger.info("Message is not a valid wordle submission. Ignoring message.")
+        logger.info(
+            "Message is not a valid, winning Wordle submission. Ignoring message."
+        )
         return
 
     wordle_board, wordle_board_number = parse_message(decoded_message_text)
@@ -236,7 +240,7 @@ def convert_wordle_board_to_db_format(wordle_board: list) -> str:
 
 
 def message_contains_wordle_submission(message_text: str) -> bool:
-    """Validate if message text contains a Wordle result."""
+    """Validate if message text contains a winning Wordle result."""
     if not message_text:
         return False
 
