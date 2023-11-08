@@ -1,10 +1,6 @@
-from lambda_function import (
-    convert_wordle_board_to_db_format,
-    decode_message,
-    get_wordligami_result,
-    message_contains_wordle_submission,
-    parse_message,
-)
+from lambda_function import (convert_wordle_board_to_db_format, decode_message,
+                             get_wordligami_result,
+                             message_contains_wordle_submission, parse_message)
 
 
 class TestMessageProcessor:
