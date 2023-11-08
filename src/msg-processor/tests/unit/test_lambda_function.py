@@ -1,5 +1,10 @@
-from lambda_function import (convert_wordle_board_to_db_format, decode_message,
-                             message_contains_wordle_submission, parse_message, get_wordligami_result)
+from lambda_function import (
+    convert_wordle_board_to_db_format,
+    decode_message,
+    get_wordligami_result,
+    message_contains_wordle_submission,
+    parse_message,
+)
 
 
 class TestMessageProcessor:
@@ -48,4 +53,13 @@ class TestMessageProcessor:
         ]
 
         result = get_wordligami_result(wordle_board)
-        assert result == {'matches': [{'board': 'gwgwwgygwwgwgwgggggg', 'board_number': '843', 'user_id': '57821028'}], 'wordligami': False}
+        assert result == {
+            "matches": [
+                {
+                    "board": "gwgwwgygwwgwgwgggggg",
+                    "board_number": "843",
+                    "user_id": "57821028",
+                }
+            ],
+            "wordligami": False,
+        }
