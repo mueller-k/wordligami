@@ -119,9 +119,9 @@ def create_wordligami_result_message(wordligami_result: dict) -> str:
     board_number = wordligami_result["board_number"]
     seen_count = len(wordligami_result["matches"])
     first_match = min(wordligami_result["matches"], key=lambda d: d["board_number"])
-    first_match_date = datetime.utcfromtimestamp(first_match["created_at"]).strftime(
-        "%A %B %d, %Y"
-    )
+    first_match_date = datetime.utcfromtimestamp(
+        float(first_match["created_at"])
+    ).strftime("%A %B %d, %Y")
     message = (
         f"That's Wordligami!! 🎉\nCongrats {submitter}! Your board for Wordle {board_number} is unique!"
         if wordligami_result["wordligami"] is True
