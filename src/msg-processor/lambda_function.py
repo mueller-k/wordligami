@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
+from decimal import Decimal
 from typing import Tuple
 
 import boto3
@@ -66,7 +67,7 @@ def process_message(message: dict) -> dict:
         wordle_board_number,
         message.get("user_id", "000000"),
         message.get("name", "unknown"),
-        message.get("created_at", 0),
+        Decimal(message.get("created_at", 0)),
     )
     logger.info("Message processed.")
 
@@ -177,7 +178,7 @@ def backload_message(message) -> None:
         wordle_board_number,
         message.user_id,
         message.name,
-        message.created_at,
+        Decimal(message.created_at.timestamp()),
     )
     logger.info("Message backloaded.")
     return
@@ -201,7 +202,7 @@ def store_board(
     wordle_board_number: str,
     user_id: str,
     user_name: str,
-    created_at: int,
+    created_at: Decimal,
 ) -> None:
     wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
 
