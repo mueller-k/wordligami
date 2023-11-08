@@ -78,6 +78,8 @@ def get_wordligami_result(wordle_board: list) -> dict:
     result = {}
     wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
 
+    logger.info(f"Querying for board {wordle_board_db_format}...")
+
     query_result = table.query(
         KeyConditionExpression=Key("board").eq(wordle_board_db_format)
     )
