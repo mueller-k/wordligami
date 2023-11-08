@@ -4,8 +4,10 @@ import os
 from typing import Tuple
 
 import boto3
-from boto3.dynamodb.conditions import Key
 import emoji
+import requests
+from boto3.dynamodb.conditions import Key
+
 from groupy.client import Client
 
 logger = logging.getLogger()
@@ -27,6 +29,8 @@ def handler(event, context) -> dict:
     message = json.loads(event.get("body", ""))
     wordligami_result = process_message(message)
     # backload_group("Banal")
+
+    post_message_result(wordligami_result)
 
     logger.info("Event processed.")
     return {"body": json.dumps(wordligami_result), "statusCode": 200}
@@ -79,6 +83,17 @@ def get_wordligami_result(wordle_board: list) -> dict:
     )
 
     return result
+
+
+def post_message_result(wordligami_result: dict) -> None:
+    url = "https://api.groupme.com/v3/bots/post"
+
+    post_body = {
+        "text": json.dumps(wordligami_result),
+        "bot_id": "4f2cfb681f8ecd5c9de5a97dda",
+    }
+
+    requests.post(url, json=post_body)
 
 
 def backload_group(group_name: str) -> None:
