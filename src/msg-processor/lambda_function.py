@@ -85,7 +85,7 @@ def get_wordligami_result(wordle_board: list) -> dict:
             "board": item.get("board"),
             "board_number": item.get("userBoardNumber").split("#")[1],
             "user_id": item.get("userBoardNumber").split("#")[0],
-            "user_name": item.get("userName"),
+            "user_name": item.get("userName", "a mystery user"),
         }
         for item in query_result.get("Items")
     ]
