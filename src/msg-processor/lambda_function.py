@@ -85,6 +85,7 @@ def get_wordligami_result(wordle_board: list) -> dict:
             "board": item.get("board"),
             "board_number": item.get("userBoardNumber").split("#")[1],
             "user_id": item.get("userBoardNumber").split("#")[0],
+            "user_name": item.get("userName"),
         }
         for item in query_result.get("Items")
     ]
@@ -113,10 +114,11 @@ def create_wordligami_result_message(wordligami_result: dict) -> str:
     submitter = wordligami_result["submitter"]
     board_number = wordligami_result["board_number"]
     seen_count = len(wordligami_result["matches"])
+    first_match = min(wordligami_result["matches"], key=lambda d: d["board_number"])
     message = (
         f"That's Wordligami!! 🎉\nCongrats {submitter}! Your board for Wordle {board_number} is unique!"
         if wordligami_result["wordligami"] is True
-        else f"No Wordligami. 😔\nSorry {submitter}... That board has been seen {seen_count} time(s)."
+        else f"No Wordligami. 😔\nSorry {submitter}... That board has been seen {seen_count} time(s), and was initially Wordligami'd by {first_match['user_name']}"
     )
 
     return message
