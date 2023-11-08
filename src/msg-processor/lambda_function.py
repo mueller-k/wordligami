@@ -117,21 +117,23 @@ def post_message_result(wordligami_result: dict) -> None:
 
 
 def create_wordligami_result_message(wordligami_result: dict) -> str:
+    message = ""
+
     submitter = wordligami_result["submitter"]
     board_number = wordligami_result["board_number"]
-    seen_count = len(wordligami_result["matches"])
-    first_match = min(wordligami_result["matches"], key=lambda d: d["board_number"])
-    first_match_date = datetime.utcfromtimestamp(
-        float(first_match["created_at"])
-    ).strftime("%B %d, %Y")
-    message = (
-        f"That's Wordligami!! 🎉\nCongrats {submitter}! Your board for Wordle {board_number} is unique!"
-        if wordligami_result["wordligami"] is True
-        else (
+
+    if wordligami_result.get("wordligami"):
+        message = f"That's Wordligami!! 🎉\nCongrats {submitter}! Your board for Wordle {board_number} is unique!"
+    else:
+        seen_count = len(wordligami_result["matches"])
+        first_match = min(wordligami_result["matches"], key=lambda d: d["board_number"])
+        first_match_date = datetime.utcfromtimestamp(
+            float(first_match["created_at"])
+        ).strftime("%B %d, %Y")
+        message = (
             f"No Wordligami. 😔\nSorry {submitter}... That board has been seen {seen_count} time(s)"
             f", and was initially Wordligami'd by {first_match['user_name']} on {first_match_date}."
         )
-    )
 
     return message
 
