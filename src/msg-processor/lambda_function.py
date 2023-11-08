@@ -60,7 +60,12 @@ def process_message(message: dict) -> dict:
     wordligami_result["submitter"] = message.get("name")
     wordligami_result["board_number"] = wordle_board_number
 
-    store_board(wordle_board, wordle_board_number, message.get("user_id", "000000"))
+    store_board(
+        wordle_board,
+        wordle_board_number,
+        message.get("user_id", "000000"),
+        message.get("name", "unknown"),
+    )
     logger.info("Message processed.")
 
     return wordligami_result
@@ -110,7 +115,7 @@ def create_wordligami_result_message(wordligami_result: dict) -> str:
     seen_count = len(wordligami_result["matches"])
     message = (
         f"That's Wordligami!! 🎉\nCongrats {submitter}! Your board for Wordle {board_number} is unique!"
-        if wordligami_result["wordligami"] == True
+        if wordligami_result["wordligami"] is True
         else f"No Wordligami. 😔\nSorry {submitter}... That board has been seen {seen_count} time(s)."
     )
 
@@ -156,7 +161,7 @@ def backload_message(message) -> None:
 
     wordle_board, wordle_board_number = parse_message(decoded_message_text)
 
-    store_board(wordle_board, wordle_board_number, message.user_id)
+    store_board(wordle_board, wordle_board_number, message.user_id, message.name)
     logger.info("Message backloaded.")
     return
 
@@ -174,13 +179,16 @@ def parse_message(message) -> Tuple[list, str]:
     return wordle_board, wordle_board_number
 
 
-def store_board(wordle_board: list, wordle_board_number: str, user_id: str) -> None:
+def store_board(
+    wordle_board: list, wordle_board_number: str, user_id: str, user_name: str
+) -> None:
     wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
 
     table.put_item(
         Item={
             "board": wordle_board_db_format,
             "userBoardNumber": f"{user_id}#{wordle_board_number}",
+            "userName": user_name,
         }
     )
 
