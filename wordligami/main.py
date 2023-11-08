@@ -51,9 +51,7 @@ class AppStack(Stack):
 
         NAME_OF_THE_GAME = "wordligami"
 
-        test_identity = aws_iam.Role(
-            self, "test-role", assumed_by=aws_iam.AccountPrincipal(self.account)
-        )
+        test_identity = aws_iam.User(self, "test-user")
 
         groupme_secret_token = aws_secretsmanager.Secret(
             self,
@@ -62,22 +60,11 @@ class AppStack(Stack):
             secret_object_value={"token": SecretValue.unsafe_plain_text("replace-me")},
         )
 
-        groupme_secret_token.grant_read(test_identity)
-
         api_domain_name = aws_apigatewayv2_alpha.DomainName(
             self,
             "api-domain-name",
             domain_name=f"api.{NAME_OF_THE_GAME}.com",
             certificate=certificate,
-        )
-
-        api = aws_apigatewayv2_alpha.HttpApi(
-            self,
-            "http-api",
-            api_name=NAME_OF_THE_GAME,
-            default_domain_mapping=aws_apigatewayv2_alpha.DomainMappingOptions(
-                domain_name=api_domain_name, mapping_key="bot"
-            ),
         )
 
         aws_route53.ARecord(
@@ -90,6 +77,15 @@ class AppStack(Stack):
                     api_domain_name.regional_domain_name,
                     api_domain_name.regional_hosted_zone_id,
                 )
+            ),
+        )
+
+        api = aws_apigatewayv2_alpha.HttpApi(
+            self,
+            "http-api",
+            api_name=NAME_OF_THE_GAME,
+            default_domain_mapping=aws_apigatewayv2_alpha.DomainMappingOptions(
+                domain_name=api_domain_name, mapping_key="bot"
             ),
         )
 
@@ -119,6 +115,7 @@ class AppStack(Stack):
         )
 
         groupme_secret_token.grant_read(msg_proc_function)
+        groupme_secret_token.grant_read(test_identity)
 
         api.add_routes(
             path="/message",
@@ -141,3 +138,4 @@ class AppStack(Stack):
         )
 
         board_table.grant_read_write_data(msg_proc_function)
+        board_table.grant_read_write_data(test_identity)
