@@ -30,7 +30,8 @@ def handler(event, context) -> dict:
     wordligami_result = process_message(message)
     # backload_group("Banal")
 
-    post_message_result(wordligami_result)
+    if wordligami_result:
+        post_message_result(wordligami_result)
 
     logger.info("Event processed.")
     return {"body": json.dumps(wordligami_result), "statusCode": 200}
@@ -41,7 +42,9 @@ def process_message(message: dict) -> dict:
 
     message_text = message.get("text", "")
     if not message_text:
-        logger.info("Message is empty. Ignoring message.")
+        logger.info(
+            "Message is either empty or not a valid GroupMe message. Ignoring message."
+        )
         return {}
 
     decoded_message_text = decode_message(message_text)
@@ -53,6 +56,9 @@ def process_message(message: dict) -> dict:
     wordle_board, wordle_board_number = parse_message(decoded_message_text)
 
     wordligami_result = get_wordligami_result(wordle_board)
+
+    wordligami_result["submitter"] = message.get("name")
+    wordligami_result["board_number"] = wordle_board_number
 
     store_board(wordle_board, wordle_board_number, message.get("user_id", "000000"))
     logger.info("Message processed.")
@@ -86,14 +92,29 @@ def get_wordligami_result(wordle_board: list) -> dict:
 
 
 def post_message_result(wordligami_result: dict) -> None:
+    message = create_wordligami_result_message(wordligami_result)
+
     url = "https://api.groupme.com/v3/bots/post"
 
     post_body = {
-        "text": json.dumps(wordligami_result),
+        "text": message,
         "bot_id": "4f2cfb681f8ecd5c9de5a97dda",
     }
 
     requests.post(url, json=post_body)
+
+
+def create_wordligami_result_message(wordligami_result: dict) -> str:
+    submitter = wordligami_result["submitter"]
+    board_number = wordligami_result["board_number"]
+    seen_count = len(wordligami_result["matches"])
+    message = (
+        f"That's Wordligami!! 🎉\nCongrats {submitter}! Your board for Wordle {board_number} is unique!"
+        if wordligami_result["wordligami"] == True
+        else f"No Wordligami. 😔\nSorry {submitter}... That board has been seen {seen_count} time(s)."
+    )
+
+    return message
 
 
 def backload_group(group_name: str) -> None:
