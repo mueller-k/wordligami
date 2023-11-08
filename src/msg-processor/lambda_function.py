@@ -120,7 +120,7 @@ def create_wordligami_result_message(wordligami_result: dict) -> str:
         if wordligami_result["wordligami"] is True
         else (
             f"No Wordligami. 😔\nSorry {submitter}... That board has been seen {seen_count} time(s)"
-            ", and was initially Wordligami'd by {first_match['user_name']}"
+            f", and was initially Wordligami'd by {first_match['user_name']}"
         )
     )
 
