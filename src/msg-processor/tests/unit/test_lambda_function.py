@@ -1,5 +1,5 @@
 from lambda_function import (convert_wordle_board_to_db_format, decode_message,
-                             message_contains_wordle_submission, parse_message)
+                             message_contains_wordle_submission, parse_message, get_wordligami_result)
 
 
 class TestMessageProcessor:
@@ -41,3 +41,11 @@ class TestMessageProcessor:
         assert board_number_1 == "869"
         assert board_2 == expected_board_1
         assert board_number_2 == "872"
+
+    def test_get_wordligami_result(self):
+        wordle_board = [
+            decode_message(row) for row in ["🟩⬛🟩⬛⬛", "🟩🟨🟩⬛⬛", "🟩⬛🟩⬛🟩", "🟩🟩🟩🟩🟩"]
+        ]
+
+        result = get_wordligami_result(wordle_board)
+        assert result == {'matches': [{'board': 'gwgwwgygwwgwgwgggggg', 'board_number': '843', 'user_id': '57821028'}], 'wordligami': False}

@@ -2,13 +2,13 @@ import pytest
 from aws_cdk import App
 from aws_cdk.assertions import Template
 
-from wordligami.main import MyStack
+from wordligami.main import AppStack
 
 
 @pytest.fixture(scope="module")
 def template():
     app = App()
-    stack = MyStack(app, "my-stack-test")
+    stack = AppStack(app, "my-stack-test")
     template = Template.from_stack(stack)
     yield template
 

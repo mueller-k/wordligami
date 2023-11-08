@@ -4,6 +4,7 @@ import os
 from typing import Tuple
 
 import boto3
+from boto3.dynamodb.conditions import Key
 import emoji
 from groupy.client import Client
 
@@ -21,30 +22,78 @@ final_row = green_square_emoji * 5
 
 
 def handler(event, context) -> dict:
-    logger.info("Processing event...")
-    process_event(event)
-    # process_group("Banal")
+    logger.info("Processing event {event}...")
+
+    message = json.loads(event.get("body", ""))
+    wordligami_result = process_message(message)
+    # backload_group("Banal")
+
     logger.info("Event processed.")
-    return {"body": "success", "statusCode": 200}
+    return {"body": json.dumps(wordligami_result), "statusCode": 200}
 
 
-def process_event(event) -> None:
-    return
+def process_message(message: dict) -> dict:
+    logger.info(f"Received message: {message}")
+
+    message_text = message.get("text", "")
+    if not message_text:
+        logger.info("Message is empty. Ignoring message.")
+        return {}
+
+    decoded_message_text = decode_message(message_text)
+
+    if not message_contains_wordle_submission(decoded_message_text):
+        logger.info("Message is not a valid wordle submission. Ignoring message.")
+        return {}
+
+    wordle_board, wordle_board_number = parse_message(decoded_message_text)
+
+    wordligami_result = get_wordligami_result(wordle_board)
+
+    store_board(wordle_board, wordle_board_number, message.get("user_id", "000000"))
+    logger.info("Message processed.")
+
+    return wordligami_result
 
 
-def process_group(group_name: str) -> None:
-    logger.info(f"Processing group {group_name}...")
+def get_wordligami_result(wordle_board: list) -> dict:
+    result = {}
+    wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
+
+    query_result = table.query(
+        KeyConditionExpression=Key("board").eq(wordle_board_db_format)
+    )
+
+    result["wordligami"] = False if query_result.get("Count") > 0 else True
+    result["matches"] = [
+        {
+            "board": item.get("board"),
+            "board_number": item.get("userBoardNumber").split("#")[1],
+            "user_id": item.get("userBoardNumber").split("#")[0],
+        }
+        for item in query_result.get("Items")
+    ]
+
+    logger.info("Woo! It's Wordligami!") if result["wordligami"] else logger.info(
+        "Boo! No Wordligami!"
+    )
+
+    return result
+
+
+def backload_group(group_name: str) -> None:
+    logger.info(f"Backloading group {group_name}...")
     groupme_token = get_groupme_token()
     groupme_client = Client.from_token(groupme_token)
     wordle_group = [
         group for group in groupme_client.groups.list_all() if group.name == group_name
     ][0]
     for message in wordle_group.messages.list_all(limit=100):
-        process_message(message)
+        backload_message(message)
 
     logger.info(wordle_group)
 
-    logger.info("Group processed.")
+    logger.info("Group backloaded.")
     return
 
 
@@ -56,8 +105,8 @@ def decode_message(message_text: str) -> str:
     return emoji.replace_emoji(message_text, replace=unicode_escape)
 
 
-def process_message(message) -> None:
-    logger.info(f"Processing message: {message}...")
+def backload_message(message) -> None:
+    logger.info(f"Backloading message: {message}...")
 
     if not message.text:
         logger.info("Message is empty. Ignoring message.")
@@ -72,7 +121,7 @@ def process_message(message) -> None:
     wordle_board, wordle_board_number = parse_message(decoded_message_text)
 
     store_board(wordle_board, wordle_board_number, message.user_id)
-    logger.info("Message processed.")
+    logger.info("Message backloaded.")
     return
 
 
@@ -100,14 +149,6 @@ def store_board(wordle_board: list, wordle_board_number: str, user_id: str) -> N
     )
 
     return
-
-
-def get_board(wordle_board: list) -> list | None:
-    wordle_board_db_format = convert_wordle_board_to_db_format(wordle_board)
-
-    item = table.get_item(Key={"board": wordle_board_db_format})
-
-    return item
 
 
 def convert_wordle_board_to_db_format(wordle_board: list) -> str:
