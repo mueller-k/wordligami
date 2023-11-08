@@ -1,26 +1,16 @@
 # Wordligami
 
-## Requirements
+Wordligami is the art of building Wordle boards that have never happend in group chat history.
 
--- Ability to determine if a Wordle game board has been seen before
--- Determine when that board was last seen (all times seen before)
--- Determine who won the Wordle for that day? (time based review)
+Based on the popular [NFL Scorigami](https://nflscorigami.com/) built by [Jon Bois](https://twitter.com/jon_bois).
 
 ## Development
 
-Utilizes a [Makefile](Makefile) for development scripts.
+Hosted in AWS. Card-carrying [GroupMe Bot](https://dev.groupme.com/bots).
 
-Run `make synth` to synth templates.
+Requires [pipenv](https://pipenv.pypa.io/en/latest/) and [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.html).
 
-Run `make deploy` to deploy templates.
+Run `pipenv install` to install dependencies.
+Run `pipenv shell` to activate the virtualenv.
 
-## Project To-Do
-
-* Create data store for storing games
--- Storing users as well?
--- New data store per groupme chat (to support other chats)
-
-* Create UI for displaying information about a submission
--- Site homepage lists all chats available
--- Can click into chat and see all submissions
--- Can click into submission and see if it's a Wordligami, or the last time the board was seen (and who submitted it)
+Run `cdk synth` to synth the project infrastructure.

@@ -11,6 +11,9 @@ constructs = "*"
 
 [dev-packages]
 pytest = "*"
+boto3 = "*"
+emoji = "*"
+requests = "*"
 
 [requires]
 python_version = "3.10"
